@@ -1,4 +1,5 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
+import './App.css'
 import {
   buildReceiptPdf,
   isValidHtmlDateValue,
@@ -6,7 +7,6 @@ import {
   type LineItemInput,
 } from './receiptPdf'
 import { readSerial, writeSerial } from './serialStorage'
-import './App.css'
 
 type TemplateId = 'kmc' | 'ticketZone'
 
@@ -146,7 +146,6 @@ export default function App() {
       })
       downloadBlob(blob, `${currentSerial}.pdf`)
       writeSerial(currentSerial + 1)
-      refreshSerial()
     } catch (e) {
       setFetchError(
         e instanceof Error ? e.message : 'Failed to generate PDF.',
