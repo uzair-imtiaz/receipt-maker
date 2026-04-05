@@ -1,6 +1,6 @@
 # Receipt generator (web)
 
-Vite + React + TypeScript app that fills receipt PDF templates using [pdf-lib](https://pdf-lib.js.org/), matching the layout and serial behavior of the original Python `receiptMaker.py`.
+Vite + React + TypeScript app that fills receipt PDF templates using [pdf-lib](https://pdf-lib.js.org/), matching the layout of the original Python `receiptMaker.py` (invoice id is a random 6-digit number instead of a stored counter).
 
 ## Run locally
 
@@ -21,11 +21,11 @@ Copy these files into `public/`:
 
 Without them, **Generate** will fail with a fetch error.
 
-## Invoice / serial number
+## Invoice ID
 
-The next serial is stored in the browser as `localStorage` key `receiptSerial` (same lifecycle as `inv_id.txt`: use current value on the PDF and filename, then increment by 1 after a successful download).
+Each generated PDF gets a random **6-digit** invoice number (`100000`–`999999`) via `crypto.getRandomValues`, used both on the PDF and as the download filename (`{id}.pdf`). The Python script still uses a sequential counter in `inv_id.txt` if you need that behavior there.
 
-For a shared or multi-user serial, move persistence to a server (for example a Next.js Route Handler) and keep the same pdf-lib drawing logic.
+For guaranteed unique ids across users or devices, assign ids on a server (for example a Next.js Route Handler) and pass them into the same pdf-lib drawing logic.
 
 ## Font (optional)
 

@@ -6,9 +6,17 @@ import {
   parseAmountStrict,
   type LineItemInput,
 } from './receiptPdf'
-import { readSerial, writeSerial } from './serialStorage'
-
 type TemplateId = 'kmc' | 'ticketZone'
+
+/** 6-digit invoice-style id (100000–999999), cryptographically random. */
+function randomInvoiceId(): number {
+  const min = 100_00
+  const max = 999_99
+  const range = max - min + 1
+  const u32 = new Uint32Array(1)
+  crypto.getRandomValues(u32)
+  return min + (u32[0]! % range)
+}
 
 const TEMPLATE_PATH: Record<TemplateId, string> = {
   kmc: '/template.pdf',
@@ -124,7 +132,7 @@ export default function App() {
     }
 
     const path = TEMPLATE_PATH[template]
-    const currentSerial = readSerial()
+    const invoiceId = randomInvoiceId()
 
     setBusy(true)
     try {
@@ -138,14 +146,13 @@ export default function App() {
       const templateBytes = await res.arrayBuffer()
       const pdfBytes = await buildReceiptPdf(
         templateBytes,
-        currentSerial,
+        invoiceId,
         toInputs(lines),
       )
       const blob = new Blob([pdfBytes as BlobPart], {
         type: 'application/pdf',
       })
-      downloadBlob(blob, `${currentSerial}.pdf`)
-      writeSerial(currentSerial + 1)
+      downloadBlob(blob, `${invoiceId}.pdf`)
     } catch (e) {
       setFetchError(
         e instanceof Error ? e.message : 'Failed to generate PDF.',
